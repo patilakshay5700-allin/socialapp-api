@@ -1,19 +1,12 @@
 package com.socialapp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class User {
 
     @Id
@@ -36,80 +29,54 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public User(String name, String email, String encode) {
-    }
+    // Users that THIS user is following
+    // "I am following these people"
+    @ManyToMany
+    @JoinTable(
+            name = "follows",                            // join table name
+            joinColumns = @JoinColumn(name = "follower_id"),    // this user
+            inverseJoinColumns = @JoinColumn(name = "following_id") // who they follow
+    )
+    private Set<User> following = new HashSet<>();
+
+    // Users that are following THIS user
+    // "These people follow me"
+    @ManyToMany(mappedBy = "following")
+    private Set<User> followers = new HashSet<>();
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
+    // Constructors
+    public User() {}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public User(Long id, String name, String email, String password, String bio, String profilePicture, LocalDateTime createdAt) {
-        this.id = id;
+    public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.bio = bio;
-        this.profilePicture = profilePicture;
-        this.createdAt = createdAt;
     }
 
-    public User() {
-    }
+    // Getters
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+    public String getBio() { return bio; }
+    public String getProfilePicture() { return profilePicture; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public Set<User> getFollowing() { return following; }
+    public Set<User> getFollowers() { return followers; }
+
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPassword(String password) { this.password = password; }
+    public void setBio(String bio) { this.bio = bio; }
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setFollowing(Set<User> following) { this.following = following; }
+    public void setFollowers(Set<User> followers) { this.followers = followers; }
 }
