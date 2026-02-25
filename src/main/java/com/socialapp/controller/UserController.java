@@ -4,12 +4,16 @@ package com.socialapp.controller;
 import com.socialapp.dto.UserProfileResponse;
 import com.socialapp.dto.UserSummaryResponse;
 import com.socialapp.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+
+@Tag(name = "Users", description = "User profiles, follow and unfollow")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -21,6 +25,7 @@ public class UserController {
     }
 
     // GET USER PROFILE
+    @Operation(summary = "Get user profile with follower counts")
     @GetMapping("/{id}/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(
             @PathVariable Long id) {
@@ -28,6 +33,7 @@ public class UserController {
     }
 
     // FOLLOW USER
+    @Operation(summary = "Follow a user")
     @PostMapping("/{id}/follow")
     public ResponseEntity<String> followUser(
             @PathVariable Long id,
@@ -41,6 +47,7 @@ public class UserController {
     }
 
     // UNFOLLOW USER
+    @Operation(summary = "Unfollow a user")
     @DeleteMapping("/{id}/follow")
     public ResponseEntity<String> unfollowUser(
             @PathVariable Long id,
