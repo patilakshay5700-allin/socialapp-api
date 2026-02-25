@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -27,32 +26,42 @@ public class PostController {
     public ResponseEntity<PostResponse> createPost(
             @Valid @RequestBody PostRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        // userDetails.getUsername() returns the email we stored in the token
-        PostResponse response = postService.createPost(
-                request,
-                userDetails.getUsername()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(postService.createPost(request, userDetails.getUsername()));
     }
 
     // GET ALL POSTS
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<List<PostResponse>> getAllPosts(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                postService.getAllPosts(userDetails.getUsername()));
+    }
+
+    // GET FEED — posts from people you follow
+    @GetMapping("/feed")
+    public ResponseEntity<List<PostResponse>> getFeed(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                postService.getFeed(userDetails.getUsername()));
     }
 
     // GET SINGLE POST
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPostById(id));
+    public ResponseEntity<PostResponse> getPostById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                postService.getPostById(id, userDetails.getUsername()));
     }
 
     // GET POSTS BY USER
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PostResponse>> getPostsByUser(
-            @PathVariable Long userId) {
-        return ResponseEntity.ok(postService.getPostsByUser(userId));
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                postService.getPostsByUser(userId, userDetails.getUsername()));
     }
 
     // UPDATE POST
@@ -61,13 +70,8 @@ public class PostController {
             @PathVariable Long id,
             @Valid @RequestBody PostRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        PostResponse response = postService.updatePost(
-                id,
-                request,
-                userDetails.getUsername()
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                postService.updatePost(id, request, userDetails.getUsername()));
     }
 
     // DELETE POST
@@ -75,8 +79,25 @@ public class PostController {
     public ResponseEntity<String> deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-
         postService.deletePost(id, userDetails.getUsername());
         return ResponseEntity.ok("Post deleted successfully");
+    }
+
+    // LIKE POST
+    @PostMapping("/{id}/like")
+    public ResponseEntity<PostResponse> likePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                postService.likePost(id, userDetails.getUsername()));
+    }
+
+    // UNLIKE POST
+    @DeleteMapping("/{id}/like")
+    public ResponseEntity<PostResponse> unlikePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                postService.unlikePost(id, userDetails.getUsername()));
     }
 }

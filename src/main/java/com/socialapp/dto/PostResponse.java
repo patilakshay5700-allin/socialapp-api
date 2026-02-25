@@ -1,7 +1,7 @@
 package com.socialapp.dto;
 
-
 import com.socialapp.model.Post;
+import com.socialapp.model.User;
 import java.time.LocalDateTime;
 
 public class PostResponse {
@@ -11,14 +11,14 @@ public class PostResponse {
     private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    // Author info — we don't expose the whole User object
     private Long userId;
     private String userName;
+    private int likesCount;       // total likes on this post
+    private boolean isLiked;      // did the current logged in user like this?
 
     public PostResponse() {}
 
-    // Static factory method — converts Post entity to PostResponse DTO
+    // Basic conversion without isLiked info
     public static PostResponse fromPost(Post post) {
         PostResponse response = new PostResponse();
         response.id = post.getId();
@@ -28,6 +28,15 @@ public class PostResponse {
         response.updatedAt = post.getUpdatedAt();
         response.userId = post.getUser().getId();
         response.userName = post.getUser().getName();
+        response.likesCount = post.getLikedBy().size();
+        response.isLiked = false;
+        return response;
+    }
+
+    // Full conversion WITH isLiked info (pass current logged in user)
+    public static PostResponse fromPost(Post post, User currentUser) {
+        PostResponse response = fromPost(post);
+        response.isLiked = post.getLikedBy().contains(currentUser);
         return response;
     }
 
@@ -39,6 +48,8 @@ public class PostResponse {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public Long getUserId() { return userId; }
     public String getUserName() { return userName; }
+    public int getLikesCount() { return likesCount; }
+    public boolean isLiked() { return isLiked; }
 
     // Setters
     public void setId(Long id) { this.id = id; }
@@ -48,4 +59,6 @@ public class PostResponse {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public void setUserId(Long userId) { this.userId = userId; }
     public void setUserName(String userName) { this.userName = userName; }
+    public void setLikesCount(int likesCount) { this.likesCount = likesCount; }
+    public void setLiked(boolean liked) { this.isLiked = liked; }
 }
